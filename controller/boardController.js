@@ -3,7 +3,7 @@ const router = express.Router();
 const db = require("../db/database.js");
 
 //전체 메인 게시판 페이지(큰게시판이름(갤러리) 넘어감)
-router.get("/board", async (req, res) => {
+router.get("/", async (req, res) => {
   try{
     sql = await db.query("SELECT * from boardInfo");
     let [results] = sql;
@@ -16,7 +16,7 @@ router.get("/board", async (req, res) => {
 });
 
 // 게시판 메인(게시물 이름, 글쓴이, 쓴날짜, 조회수),(큰게시판 누르면 넘어가는곳. 즉, 갤러리 안쪽.)
-router.get("/board/:boardID", async (req, res) => {
+router.get("/:boardID", async (req, res) => {
   try{
     let {boardID} = req.params;
     sql = await db.query(`SELECT title, userNickname, created, views FROM board WHERE tableInfoid = ${boardID}`);
@@ -30,7 +30,7 @@ router.get("/board/:boardID", async (req, res) => {
 });
 
 //검색
-router.get(`/board/search/title/:titles`, async (req, res) => {
+router.get(`/search/title/:titles`, async (req, res) => {
   try{
     let {titles} = req.params;
     sql = await db.query(`SELECT title,userNickname,created FROM board WHERE title LIKE '%${titles}%'`);
@@ -43,7 +43,7 @@ router.get(`/board/search/title/:titles`, async (req, res) => {
 });
 
 // 게시판 상세(갤러리 내 게시판 누르면 넘어가는 상세 페이지)
-router.get(`/board/:boardID/:tableID`, async (req, res) => {
+router.get(`/:boardID/:tableID`, async (req, res) => {
   try{
     let { tableID, boardID } = req.params;
     sql = await db.query(`SELECT tableID, title, userNickname, description, created, views FROM board WHERE tableId = ${tableID} and tableInfoId = ${boardID}`);
@@ -56,7 +56,7 @@ router.get(`/board/:boardID/:tableID`, async (req, res) => {
 });
 
 // 게시물 작성
-router.post(`/board/insert`, async (req, res) => {
+router.post(`/insert`, async (req, res) => {
 try {
   let { tableInfoId, title, userNickname, description } = req.body;
   let tableId = await getTableId();
@@ -90,9 +90,9 @@ router.get(`/delete/board/:tableID`, async (req, res) => {
     res.send(200);
   }catch(e){
     console.log(e);
-    res.status(500).send("500 error")
+    res.status(500).send("500 error");
   }
-
+ 
 });
 
 
