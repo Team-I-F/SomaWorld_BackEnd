@@ -66,13 +66,13 @@ try {
 } catch (e) {
   console.log(e);
   res.status(500).send("500 error");
-}
+} 
   
 });
 //테이블아이디 넘겨주는 함수
 const getTableId = async() => {
   let con  = await db.query(
-  `SELECT max(tableId)+1 as m FROM board `)
+  `SELECT max(tableId)+1 as m FROM board ` )
     if (con.length){
       let values = Object.values(con[0]);
       values = JSON.stringify(values).replace(/^\[|\]$/g, '');
