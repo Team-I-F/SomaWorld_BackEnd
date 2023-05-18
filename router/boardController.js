@@ -83,7 +83,17 @@ const getTableId = async() => {
 
 };
 
+router.get(`/delete/board/:tableID`, async (req, res) => {
+  try{
+    let {tableID} = req.params;
+    sql = await db.query(`DELETE FROM board WHERE tableId = ${tableID}`);
+    res.send(200);
+  }catch(e){
+    console.log(e);
+    res.status(500).send("500 error")
+  }
 
+});
 
 
 module.exports = router;
