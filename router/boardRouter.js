@@ -137,7 +137,7 @@ router.get(`/update/:tableID`, async (req, res) => {
     //   `UPDATE board SET title = '${tables.title}', description = '${tables.description}' WHERE tableId = ${tableID}`
     // );
     res.send(200);
-  } catch (e) {
+  } catch (e) { 
     console.log(e);
     res.status(500).send("500 error");
   }
