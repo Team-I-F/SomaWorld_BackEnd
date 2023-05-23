@@ -133,9 +133,6 @@ router.get(`/update/:tableID`, async (req, res) => {
   try {
     let tableID = req.params;
     let tables = await getTables(tableID);
-    // sql = await db.query(
-    //   `UPDATE board SET title = '${tables.title}', description = '${tables.description}' WHERE tableId = ${tableID}`
-    // );
     res.send(200);
   } catch (e) { 
     console.log(e);
