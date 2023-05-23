@@ -8,7 +8,7 @@ app.use(cors({
     origin : true,
     credentials : true
 }))
-app.use(cookieParser());
+app.use(cookieParser()); 
 app.use(
     session({
         key: "loginData",
@@ -16,7 +16,7 @@ app.use(
         resave: false,
         saveUninitialized: false,
         cookie: {
-            expires: 60 * 60 * 24,
+            expires: 60 * 60 * 24, // 쿠키 만료일 (60초 * 60분 * 24 = 1일)
         },
     })
 );
