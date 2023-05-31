@@ -1,19 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const db = require("../db/database.js");
-
-//테이블 타이틀, 내용 넘겨주는 함수
-const getTables = async (tableID) => {
-  let con = await db.query(
-    `SELECT views FROM board WHERE tableId = ${tableID}`
-  );
-  if (con.length) {
-    let values = Object.values(con[0], [1]);
-    values = JSON.stringify(values).replace(/^\[|\]$/g, "");
-    values = JSON.parse(values);
-    return values.title, values.description;
-  } else return null;
-};
+//const {getTableId, getViews }= require("../function/boardFunction.js");
 
 const getViews = async (tableID) => {
   let con = await db.query(
@@ -28,7 +16,7 @@ const getViews = async (tableID) => {
 };
 
 //테이블아이디 넘겨주는 함수
-const getTableId = async (tableID) => {
+const getTableId = async () => {
   let con = await db.query(`SELECT max(tableId)+1 as m FROM board `);
   if (con.length) {
     let values = Object.values(con[0]);
@@ -46,7 +34,7 @@ router.get("/", async (req, res) => {
     res.json(results);
   } catch (e) {
     console.log(e);
-    res.status(500).send("500 error");
+    res.status(404);
   }
 });
 
@@ -61,7 +49,7 @@ router.get("/:boardID", async (req, res) => {
     res.json(results);
   } catch (e) {
     console.log(e);
-    res.status(500).send("500 error");
+    res.status(404);
   }
 });
 
@@ -81,7 +69,7 @@ router.get(`/:tableInfoID/:boardID`, async (req, res) => {
     res.json(results);
   } catch (e) {
     console.log(e);
-    res.status(500).send("500 error");
+    res.status(404).send("404 error");
   }
 });
 
@@ -96,7 +84,7 @@ router.get(`/search/title/:titles`, async (req, res) => {
     res.json(results);
   } catch (e) {
     console.log(e);
-    res.status(500).send("500 error");
+    res.status(404);
   }
 });
 
@@ -108,7 +96,7 @@ router.delete(`/delete/:tableID`, async (req, res) => {
     res.send(200);
   } catch (e) {
     console.log(e);
-    res.status(500).send("500 error");
+    res.status(400);
   }
 });
 
@@ -128,20 +116,6 @@ router.post(`/insert`, async (req, res) => {
   }
 });
 
-//구현중
-router.put(`/update/:tableID`, async (req, res) => {
-  try {
-    let tableID = req.params;
-    console.log(tableID);
-    let { title, description } = req.body;
-    sql = await db.query(
-      `UPDATE board SET title = '${title}', description = '${description}' WHERE tableId = ${tableID.tableID}`
-    );
-    res.send(200);
-  } catch (e) {
-    console.log(e);
-    res.status(500).send("500 error");
-  }
-});
+
 
 module.exports = router;

@@ -1,5 +1,9 @@
+const express = require("express");
+const db = require("../db/database.js");
+
+
 //테이블 타이틀, 내용 넘겨주는 함수
-export const getTables = async (tableID) => {
+const getTables = async (tableID) => {
     let con = await db.query(
       `SELECT views FROM board WHERE tableId = ${tableID}`
     );
@@ -11,7 +15,7 @@ export const getTables = async (tableID) => {
     } else return null;
   };
   
-  export const getViews = async (tableID) => {
+const getViews = async (tableID) => {
     let con = await db.query(
       `SELECT title, description FROM board WHERE tableId = ${tableID}`
     );
@@ -24,7 +28,7 @@ export const getTables = async (tableID) => {
   };
 
   //테이블아이디 넘겨주는 함수
-export const getTableId = async (tableID) => {
+const getTableId = async (tableID) => {
     let con = await db.query(`SELECT max(tableId)+1 as m FROM board `);
     if (con.length) {
       let values = Object.values(con[0]);
@@ -33,3 +37,10 @@ export const getTableId = async (tableID) => {
       return values.m;
     } else return null;
   };
+
+
+module.exports = {
+  getTableId,
+  getTables,
+  getViews
+}
