@@ -34,7 +34,7 @@ router.get("/", async (req, res) => {
     res.json(results);
   } catch (e) {
     console.log(e);
-    res.status(404);
+    res.status(404).send();
   }
 });
 
@@ -49,7 +49,7 @@ router.get("/:boardID", async (req, res) => {
     res.json(results);
   } catch (e) {
     console.log(e);
-    res.status(404);
+    res.status(404).send();
   }
 });
 
@@ -84,7 +84,7 @@ router.get(`/search/title/:titles`, async (req, res) => {
     res.json(results);
   } catch (e) {
     console.log(e);
-    res.status(404);
+    res.status(404).send();
   }
 });
 
@@ -96,7 +96,7 @@ router.delete(`/delete/:tableID`, async (req, res) => {
     res.send(200);
   } catch (e) {
     console.log(e);
-    res.status(400);
+    res.status(400).send();
   }
 });
 

@@ -3,13 +3,13 @@ const express = require("express");
 const app = express();
 const session = require('express-session')
 const cookieParser = require('cookie-parser')
+const MemoryStore = require('memorystore')(session);
 
 app.use(cors({
     origin : true,
     credentials : true
 }))
 app.use(cookieParser()); 
-
 app.use(
     session({
         key: "loginData",

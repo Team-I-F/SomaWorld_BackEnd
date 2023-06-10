@@ -6,6 +6,7 @@ const lr = require("./router/loginRouter.js");
 const mid = require("./middleware/index.js");
 const co = require("./router/commentRouter.js");
 
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(mid);

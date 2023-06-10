@@ -32,7 +32,7 @@ router.post("/login", async (req, res) => {
     }
   } catch (e) {
     console.log(e);
-    res.send(500);
+    res.status(500).send();
   }
 
   res.end();
@@ -48,7 +48,7 @@ router.get("/logout", async (req, res) => {
     }
   } catch (e) {
     console.log(e);
-    res.send(500);
+    res.status(500).send();
   }
 });
 
@@ -61,7 +61,7 @@ router.get("/loginCheck", async (req, res) => {
     }
   } catch (e) {
     console.log(e);
-    res.send(500);
+    res.status(500).send();
   }
 });
 

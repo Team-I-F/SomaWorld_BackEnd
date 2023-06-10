@@ -28,7 +28,7 @@ router.get(`/:id`, async (req, res) => {
     res.json(result);
   } catch (e) {
     console.log(e);
-    res.send(404);
+    res.status(404).send();
   }
 });
 
@@ -43,7 +43,7 @@ router.get(`/cinc/:id`, async (req, res) => {
     res.json(result);
   } catch (e) {
     console.log(e);
-    res.send(404);
+    res.status(404).send();
   }
 });
 
