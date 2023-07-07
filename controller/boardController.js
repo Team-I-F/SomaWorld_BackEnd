@@ -1,30 +1,11 @@
 const express = require("express");
 const router = express.Router();
 const db = require("../db/database.js");
-//const {getTableId, getViews }= require("../function/boardFunction.js");
-
-const getViews = async (tableID) => {
-  let con = await db.query(
-    `SELECT views FROM board WHERE tableId = ${tableID}`
-  );
-  if (con.length) {
-    let values = Object.values(con[0]);
-    values = JSON.stringify(values).replace(/^\[|\]$/g, "");
-    values = JSON.parse(values);
-    return values.views;
-  } else return null;
-};
-
-//테이블아이디 넘겨주는 함수
-const getTableId = async () => {
-  let con = await db.query(`SELECT max(tableId)+1 as m FROM board `);
-  if (con.length) {
-    let values = Object.values(con[0]);
-    values = JSON.stringify(values).replace(/^\[|\]$/g, "");
-    values = JSON.parse(values);
-    return values.m;
-  } else return null;
-};
+const {
+  getViews,
+  getTableId,
+  getTables,
+} = require("../function/boardFunction.js");
 
 //전체 메인 게시판 페이지(큰게시판이름(갤러리) 넘어감) O
 router.get("/", async (req, res) => {
@@ -89,7 +70,7 @@ router.get(`/search/title/:titles`, async (req, res) => {
 });
 
 //삭제 O
-router.delete(`/delete/:tableID`, async (req, res) => {
+router.delete(`:tableID`, async (req, res) => {
   try {
     let { tableID } = req.params;
     sql = await db.query(`DELETE FROM board WHERE tableId = ${tableID}`);
@@ -101,7 +82,7 @@ router.delete(`/delete/:tableID`, async (req, res) => {
 });
 
 // 게시물 작성 O
-router.post(`/insert`, async (req, res) => {
+router.post(`/`, async (req, res) => {
   try {
     let { tableInfoId, title, userNickname, description } = req.body;
     let tableId = await getTableId();
@@ -115,7 +96,5 @@ router.post(`/insert`, async (req, res) => {
     res.status(500).send("500 error");
   }
 });
-
-
 
 module.exports = router;

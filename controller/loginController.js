@@ -31,8 +31,7 @@ router.post("/login", async (req, res) => {
       console.log("ID가 존재하지 않습니다");
     }
   } catch (e) {
-    console.log(e);
-    res.status(500).send();
+    res.send(e);
   }
 
   res.end();

@@ -1,11 +1,10 @@
 const express = require("express");
 const app = express();
-const br = require("./router/boardRouter.js");
-const mr = require("./router/memberRouter.js");
-const lr = require("./router/loginRouter.js");
+const br = require("./controller/boardController");
+const mr = require("./controller/memberController");
+const lr = require("./controller/loginController");
 const mid = require("./middleware/index.js");
-const co = require("./router/commentRouter.js");
-
+const co = require("./controller/commentController");
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -18,5 +17,5 @@ app.use("/comment", co);
 
 const port = 3000;
 app.listen(port, () => {
-  console.log(`Example app listening at http://localhost:${port}`);
+  console.log(`listening at http://localhost:${port}`);
 });
