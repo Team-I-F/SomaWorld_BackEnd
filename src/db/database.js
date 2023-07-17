@@ -1,9 +1,10 @@
+require("dotenv").config();
 const mysql = require("mysql2/promise");
 const pool = mysql.createPool({
-  host: "localhost",
-  user: "root",
-  password: "1234",
-  database: "somaworld",
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DATABASE,
   dateStrings: true,
   waitForConnections: true,
   connectionLimit: 5,

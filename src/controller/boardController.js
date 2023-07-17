@@ -1,11 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const db = require("../db/database.js");
-const {
-  getViews,
-  getTableId,
-  getTables,
-} = require("../function/boardFunction.js");
+const { getViews, getTableId } = require("../function/boardFunction.js");
 
 //전체 메인 게시판 페이지(큰게시판이름(갤러리) 넘어감) O
 router.get("/", async (req, res) => {

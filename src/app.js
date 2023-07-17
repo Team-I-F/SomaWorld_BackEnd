@@ -5,7 +5,6 @@ const mr = require("./controller/memberController");
 const lr = require("./controller/loginController");
 const mid = require("./middleware/index.js");
 const co = require("./controller/commentController");
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(mid);

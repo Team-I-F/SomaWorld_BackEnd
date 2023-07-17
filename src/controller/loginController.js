@@ -47,7 +47,7 @@ router.get("/logout", async (req, res) => {
     }
   } catch (e) {
     console.log(e);
-    res.status(500).send(); 
+    res.status(500).send();
   }
 });
 
