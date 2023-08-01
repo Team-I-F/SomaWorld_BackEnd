@@ -1,79 +1,89 @@
 const express = require("express");
 const router = express.Router();
-const db = require("../db/database.js");
+const { Comment, CinC, sequelize } = require("../models");
 
 // 댓글ID + 1해서 가져오는거. O
 const getCommentId = async () => {
   try {
-    let con = await db.query(`SELECT max(commentId) + 1 as m FROM comment`);
-    if (con.length) {
-      let values = Object.values(con[0]);
-      values = JSON.stringify(values).replace(/^\[|\]$/g, "");
-      values = JSON.parse(values);
+    const con = await Comment.findOne({
+      attributes: [[sequelize.fn("MAX", sequelize.col("commentId")), "m"]],
+    });
 
-      return values.m;
+    if (con && con.m !== null) {
+      return con.m + 1;
     }
+
+    return 1; // If no comments in the table, start with ID 1.
   } catch (e) {
     console.log(e);
+    throw e;
   }
 };
-//댓글 O
-router.get(`/:id`, async (req, res) => {
+
+// 댓글 O
+router.get("/:id", async (req, res) => {
   try {
-    let { id } = req.params;
-    sql = await db.query(
-      `SELECT userNickname, comment, created from comment WHERE tableId = ${id}`
-    );
-    let [result] = sql;
-    res.json(result);
+    const { id } = req.params;
+    const comments = await Comment.findAll({
+      attributes: ["userNickname", "comment", "created"],
+      where: { tableId: id },
+    });
+    res.json(comments);
   } catch (e) {
     console.log(e);
     res.status(404).send();
   }
 });
 
-//대댓글 O
-router.get(`/cinc/:id`, async (req, res) => {
+// 대댓글 O
+router.get("/cinc/:id", async (req, res) => {
   try {
-    let { id } = req.params;
-    sql = await db.query(
-      `SELECT userNickname, comment, created from CinC WHERE commentId = ${id}`
-    );
-    let [result] = sql;
-    res.json(result);
+    const { id } = req.params;
+    const replies = await CinC.findAll({
+      attributes: ["userNickname", "comment", "created"],
+      where: { commentId: id },
+    });
+    res.json(replies);
   } catch (e) {
     console.log(e);
     res.status(404).send();
   }
 });
 
-//댓글insert O
+// 댓글 insert O
 router.post("/insert", async (req, res) => {
   try {
-    let commentId = await getCommentId();
-    let { tableId, userNickname, comment } = req.body;
-    sql = await db.query(
-      `INSERT INTO comment VALUES(${commentId}, ${tableId}, '${userNickname}', '${comment}', now())`
-    );
+    const commentId = await getCommentId();
+    const { tableId, userNickname, comment } = req.body;
+    await Comment.create({
+      commentId: commentId,
+      tableId: tableId,
+      userNickname: userNickname,
+      comment: comment,
+      created: sequelize.literal("NOW()"),
+    });
     res.status(200).send();
-    return sql;
   } catch (e) {
     console.log(e);
     res.status(500).send();
   }
 });
 
-//대댓글 insert O
+// 대댓글 insert O
 router.post("/insert/cinc", async (req, res) => {
   try {
-    let { commentId, userNickname, comment } = req.body;
-    sql = await db.query(
-      `INSERT INTO CinC VALUES(${commentId}, '${userNickname}', '${comment}', now())`
-    );
+    const { commentId, userNickname, comment } = req.body;
+    await CinC.create({
+      commentId: commentId,
+      userNickname: userNickname,
+      comment: comment,
+      created: sequelize.literal("NOW()"),
+    });
     res.send(200).send();
   } catch (e) {
     console.log(e);
     res.send(500).send();
   }
 });
+
 module.exports = router;

@@ -1,65 +1,62 @@
 const express = require("express");
 const router = express.Router();
-const util = require("util");
 const bcrypt = require("bcrypt");
-const compareAsync = util.promisify(bcrypt.compare);
-const db = require("../db/database.js");
+const { User } = require("../models");
 
-const saltRounds = 5;
+const saltRounds = 10;
 
 router.post("/login", async (req, res) => {
   try {
-    const param = [req.body.id, req.body.pw];
-    const row = await db.query("SELECT * FROM User WHERE userId=?", [param[0]]);
-    if (row.length > 0) {
-      let values = Object.values(row[0], [1], [2], [3]);
-      values = JSON.stringify(values).replace(/^\[|\]$/g, "");
-      values = JSON.parse(values);
-      const result = await compareAsync(param[1], values.userPassword);
+    const { id, pw } = req.body;
+    const userData = await User.findOne({ where: { userId: id } });
+
+    if (userData) {
+      const result = await bcrypt.compare(pw, userData.userPassword);
 
       if (result) {
         req.session.loginData = {
-          userName: values.userName,
-          userNickname: values.userNickname,
+          userName: userData.userName,
+          userNickname: userData.userNickname,
         };
-        req.session.save;
+        req.session.save();
         res.json({ message: "success" });
       } else {
-        console.log("fail");
+        res.status(401).json({ message: "올바르지 않은 비밀번호" });
       }
     } else {
-      console.log("ID가 존재하지 않습니다");
+      res.status(404).json({ message: "사용자를 찾을 수 없습니다" });
     }
   } catch (e) {
-    res.send(e);
-  }
-
-  res.end();
-});
-
-router.get("/logout", async (req, res) => {
-  try {
-    if (req.session.loginData) {
-      req.session.loginData = null;
-      res.json({ message: "success" });
-    } else {
-      res.json({ message: "fail" });
-    }
-  } catch (e) {
-    console.log(e);
+    console.error(e);
     res.status(500).send();
   }
 });
 
-router.get("/loginCheck", async (req, res) => {
+router.get("/logout", (req, res) => {
   try {
-    if (req.session.loginData != null) {
+    req.session.destroy((err) => {
+      if (err) {
+        console.error(err);
+        res.status(500).send();
+      } else {
+        res.json({ message: "success" });
+      }
+    });
+  } catch (e) {
+    console.error(e);
+    res.status(500).send();
+  }
+});
+
+router.get("/loginCheck", (req, res) => {
+  try {
+    if (req.session.loginData) {
       res.send({ loggedIn: true, loginData: req.session.loginData });
     } else {
       res.send({ loggedIn: false });
     }
   } catch (e) {
-    console.log(e);
+    console.error(e);
     res.status(500).send();
   }
 });

@@ -1,43 +1,49 @@
-const express = require("express");
-const db = require("../db/database.js");
+const { Board } = require("../models");
 
-//테이블 타이틀, 내용 넘겨주는 함수
 const getViews = async (tableID) => {
-  let con = await db.query(
-    `SELECT views FROM board WHERE tableId = ${tableID}`
-  );
-  if (con.length) {
-    let values = Object.values(con[0]);
-    values = JSON.stringify(values).replace(/^\[|\]$/g, "");
-    values = JSON.parse(values);
-    return values.views;
-  } else return null;
+  try {
+    const board = await Board.findOne({
+      where: { tableId: tableID },
+      attributes: ["views"],
+    });
+
+    if (board) {
+      return board.views;
+    } else {
+      return null;
+    }
+  } catch (e) {
+    console.error(e);
+    return null;
+  }
 };
 
 const getTables = async (tableID) => {
-  let con = await db.query(
-    `SELECT title, description FROM board WHERE tableId = ${tableID}`
-  );
-  if (con.length) {
-    let values = Object.values(con[0]);
-    console.log(values);
-    values = JSON.stringify(values).replace(/^\[|\]$/g, "");
+  try {
+    const board = await Board.findOne({
+      where: { tableId: tableID },
+      attributes: ["title", "description"],
+    });
 
-    values = JSON.parse(values);
-
-    return values.views;
-  } else return null;
+    if (board) {
+      return { title: board.title, description: board.description };
+    } else {
+      return null;
+    }
+  } catch (e) {
+    console.error(e);
+    return null;
+  }
 };
 
-//테이블아이디 넘겨주는 함수
 const getTableId = async () => {
-  let con = await db.query(`SELECT max(tableId)+1 as m FROM board `);
-  if (con.length) {
-    let values = Object.values(con[0]);
-    values = JSON.stringify(values).replace(/^\[|\]$/g, "");
-    values = JSON.parse(values);
-    return values.m;
-  } else return null;
+  try {
+    const maxTableId = await Board.max("tableId");
+    return maxTableId ? maxTableId + 1 : 1;
+  } catch (e) {
+    console.error(e);
+    return null;
+  }
 };
 
 module.exports = {

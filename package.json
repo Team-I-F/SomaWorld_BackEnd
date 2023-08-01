@@ -2,7 +2,7 @@
   "name": "web2-nodejs",
   "version": "1.0.0",
   "description": "",
-  "main": "app.js",
+  "main": "src/app.js",
   "directories": {
     "lib": "lib"
   },
@@ -30,6 +30,7 @@
     "express-session": "^1.17.3",
     "jsonwebtoken": "^9.0.0",
     "memorystore": "^1.6.7",
+    "multer": "^1.4.5-lts.1",
     "mysql2": "^3.3.0",
     "nodemon": "^2.0.22",
     "passport": "^0.6.0",
