@@ -2,7 +2,7 @@ module.exports = (sequelize, DataTypes) => {
   const Board = sequelize.define(
     "Board",
     {
-      tableInfoId: {
+      galleryId: {
         type: DataTypes.INTEGER,
         allowNull: false,
       },

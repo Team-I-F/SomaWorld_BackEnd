@@ -1,9 +1,14 @@
 const express = require("express");
 const router = express.Router();
 const { Comment, CinC, sequelize } = require("../models");
+const {
+  InternalServerException,
+  NotFoundException,
+  BadRequestException,
+} = require("../global/exception/Exceptions");
 
 // 댓글ID + 1해서 가져오는거. O
-const getCommentId = async () => {
+const getCommentId = async (req, res, next) => {
   try {
     const con = await Comment.findOne({
       attributes: [[sequelize.fn("MAX", sequelize.col("commentId")), "m"]],
@@ -13,15 +18,15 @@ const getCommentId = async () => {
       return con.m + 1;
     }
 
-    return 1; // If no comments in the table, start with ID 1.
+    return 1;
   } catch (e) {
     console.log(e);
-    throw e;
+    return next(new NotFoundException());
   }
 };
 
 // 댓글 O
-router.get("/:id", async (req, res) => {
+router.get("/:id", async (req, res, next) => {
   try {
     const { id } = req.params;
     const comments = await Comment.findAll({
@@ -31,12 +36,12 @@ router.get("/:id", async (req, res) => {
     res.json(comments);
   } catch (e) {
     console.log(e);
-    res.status(404).send();
+    return next(new NotFoundException());
   }
 });
 
 // 대댓글 O
-router.get("/cinc/:id", async (req, res) => {
+router.get("/cinc/:id", async (req, res, next) => {
   try {
     const { id } = req.params;
     const replies = await CinC.findAll({
@@ -46,12 +51,12 @@ router.get("/cinc/:id", async (req, res) => {
     res.json(replies);
   } catch (e) {
     console.log(e);
-    res.status(404).send();
+    return next(NotFoundException());
   }
 });
 
 // 댓글 insert O
-router.post("/insert", async (req, res) => {
+router.post("/insert", async (req, res, next) => {
   try {
     const commentId = await getCommentId();
     const { tableId, userNickname, comment } = req.body;
@@ -65,12 +70,12 @@ router.post("/insert", async (req, res) => {
     res.status(200).send();
   } catch (e) {
     console.log(e);
-    res.status(500).send();
+    return next(InternalServerException());
   }
 });
 
 // 대댓글 insert O
-router.post("/insert/cinc", async (req, res) => {
+router.post("/insert/cinc", async (req, res, next) => {
   try {
     const { commentId, userNickname, comment } = req.body;
     await CinC.create({
@@ -82,7 +87,7 @@ router.post("/insert/cinc", async (req, res) => {
     res.send(200).send();
   } catch (e) {
     console.log(e);
-    res.send(500).send();
+    return next(InternalServerException());
   }
 });
 

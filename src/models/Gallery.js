@@ -1,22 +1,22 @@
 module.exports = (sequelize, DataTypes) => {
-  const BoardInfo = sequelize.define(
-    "BoardInfo",
+  const Gallery = sequelize.define(
+    "Gallery",
     {
-      tableInfoId: {
+      galleryId: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         allowNull: false,
         autoIncrement: true,
       },
-      tableName: {
+      galleryName: {
         type: DataTypes.STRING(50),
         allowNull: true,
       },
     },
     {
-      tableName: "boardInfo",
+      tableName: "gallery",
       timestamps: false,
     }
   );
-  return BoardInfo;
+  return Gallery;
 };

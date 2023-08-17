@@ -2,8 +2,11 @@ const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcrypt");
 const { User } = require("../models");
+require("dotenv").config();
 
-const saltRounds = 10;
+const env = process.env;
+
+const saltRounds = env.ROUNDS;
 
 router.post("/login", async (req, res) => {
   try {
