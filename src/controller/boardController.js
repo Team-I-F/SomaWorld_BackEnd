@@ -10,7 +10,6 @@ const {
   NotFoundException,
   BadRequestException,
 } = require("../global/exception/Exceptions");
-
 try {
   fs.readdirSync("uploads"); // 폴더 확인
 } catch (err) {

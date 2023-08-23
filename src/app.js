@@ -11,6 +11,7 @@ const co = require("./controller/commentController");
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(mid);
+
 app.use("/board", br); // 게시판
 app.use("/register", mr); // 회원가입
 app.use("/user", lr); // 로그인
