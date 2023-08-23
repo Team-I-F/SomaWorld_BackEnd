@@ -14,7 +14,7 @@ const sequelize = new Sequelize(
 db.Board = require("./board")(sequelize, Sequelize);
 db.Gallery = require("./Gallery")(sequelize, Sequelize);
 db.User = require("./User")(sequelize, Sequelize);
-db.Comment = require("./comment")(sequelize, Sequelize);
+db.Comment = require("./Comment")(sequelize, Sequelize);
 db.CinC = require("./CinC")(sequelize, Sequelize);
 
 // 각 모델들의 associate 함수를 호출하여 관계를 설정합니다.
