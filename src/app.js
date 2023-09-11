@@ -1,5 +1,6 @@
 const express = require("express");
 const app = express();
+const fs = require("fs");
 const port = 3000;
 const db = require("./models");
 const br = require("./controller/boardController");
@@ -11,6 +12,13 @@ const co = require("./controller/commentController");
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(mid);
+
+try {
+  fs.readdirSync("/Users/mac/Documents/sideProject/SomaWorld_BackEnd/uploads/");
+} catch (err) {
+  console.error("uploads 폴더가 없습니다. 폴더를 생성합니다.");
+  fs.mkdirSync("/Users/mac/Documents/sideProject/SomaWorld_BackEnd/uploads/");
+}
 
 app.use("/board", br); // 게시판
 app.use("/register", mr); // 회원가입
