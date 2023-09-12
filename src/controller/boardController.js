@@ -1,21 +1,16 @@
 const express = require("express");
 const router = express.Router();
 const { Op } = require("sequelize");
-const { Board, Gallery, sequelize } = require("../models");
+const { Board, Gallery, sequelize, Sequelize } = require("../models");
 const { getViews } = require("../function/boardFunction.js");
-const multer = require("multer");
+const upload = require("../middleware/multers");
+
 const fs = require("fs");
 const {
   InternalServerException,
   NotFoundException,
   BadRequestException,
 } = require("../global/exception/Exceptions");
-try {
-  fs.readdirSync("uploads"); // 폴더 확인
-} catch (err) {
-  console.error("uploads 폴더가 없습니다. 폴더를 생성합니다.");
-  fs.mkdirSync("uploads"); // 폴더 생성
-}
 
 // 전체 메인 게시판 페이지(큰 게시판 이름(갤러리) 넘어감) O
 router.get("/", async (req, res, next) => {
@@ -117,6 +112,11 @@ router.post(`/gallery`, async (req, res, next) => {
 router.post(`/`, async (req, res, next) => {
   try {
     const { galleryId, title, userNickname, description } = req.body;
+    const result = await Board.findOne({
+      attributes: [[Sequelize.literal("max(tableId)"), "tableId"]],
+    });
+    const maxId = result.dataValues.tableId;
+    const nextId = maxId + 1;
     await Board.create({
       galleryId,
       title,
@@ -125,13 +125,50 @@ router.post(`/`, async (req, res, next) => {
       created: sequelize.literal("NOW()"),
       views: 0,
     });
-    res.status(200).send("OK");
+    res.status(200).json({ success: true, tableId: nextId });
   } catch (e) {
     console.log(e);
     return next(new InternalServerException());
   }
 });
 
+router.put(
+  "/image/:tableId",
+  upload.single("image"),
+  async (req, res, next) => {
+    const { tableId } = req.params;
+    const image = req.file.filename;
+    try {
+      const results = await Board.findOne({
+        where: {
+          tableId,
+        },
+      });
+      results.image = image;
+      await results.save();
+      res.status(200).json({ success: true });
+    } catch (err) {
+      console.log(err);
+      return next(new InternalServerException());
+    }
+  }
+);
+
+router.put("/gallery/:galleryId", async (req, res, next) => {
+  const { galleryId } = req.params;
+  const { galleryName } = req.body;
+  try {
+    const results = await Gallery.findOne({
+      where: { galleryId },
+    });
+    results.galleryName = galleryName;
+    await results.save();
+    res.status(200).json({ success: true });
+  } catch (err) {
+    console.log(err);
+    return next(new InternalServerException());
+  }
+});
 // 게시물 삭제 O
 router.delete(`/:tableId`, async (req, res, next) => {
   try {
@@ -158,7 +195,7 @@ router.delete("/gallery/:galleryId", async (req, res, next) => {
         galleryId,
       },
     });
-    res.sendStatus(200);
+    res.status(200).json({ success: true });
   } catch (err) {
     console.log(err);
     return next(new NotFoundException());

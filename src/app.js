@@ -1,6 +1,7 @@
 const express = require("express");
 const app = express();
-const port = 3000;
+const fs = require("fs");
+const port = 3001;
 const db = require("./models");
 const br = require("./controller/boardController");
 const mr = require("./controller/memberController");
@@ -11,6 +12,13 @@ const co = require("./controller/commentController");
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(mid);
+
+try {
+  fs.readdirSync(process.env.FILELINK);
+} catch (err) {
+  console.error("uploads 폴더가 없습니다. 폴더를 생성합니다.");
+  fs.mkdirSync(process.env.FILELINK);
+}
 
 app.use("/board", br); // 게시판
 app.use("/register", mr); // 회원가입
