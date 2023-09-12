@@ -1,7 +1,8 @@
 const express = require("express");
 const app = express();
 const fs = require("fs");
-const port = 3001;
+
+const port = 3000;
 const db = require("./models");
 const br = require("./controller/boardController");
 const mr = require("./controller/memberController");
