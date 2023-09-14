@@ -14,10 +14,6 @@ const saltRounds = 10;
 
 router.post("/", async (req, res, next) => {
   const { id, pw, name, nickname } = req.body;
-  const { result } = await User.findAll({
-    attributes: ["userId"],
-  });
-  console.log(result);
   if (!id || !pw || !name || !nickname) {
     return next(new BadRequestException());
   }
