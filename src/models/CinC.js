@@ -5,7 +5,12 @@ module.exports = (sequelize, DataTypes) => {
       commentId: {
         type: DataTypes.INTEGER,
         allowNull: false,
+        primaryKey: false,
+      },
+      cincId: {
+        type: DataTypes.INTEGER,
         primaryKey: true,
+        autoIncrement: true,
       },
       userNickname: {
         type: DataTypes.STRING(30),

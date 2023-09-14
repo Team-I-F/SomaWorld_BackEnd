@@ -3,12 +3,17 @@ const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcrypt");
 const { User } = require("../models");
+const {
+  NotFoundException,
+  UnAuthorizedException,
+  InternalServerException,
+} = require("../global/exception/Exceptions");
 
 const env = process.env;
 
 const saltRounds = 10;
 
-router.post("/login", async (req, res) => {
+router.post("/login", async (req, res, next) => {
   try {
     const { id, pw } = req.body;
     const userData = await User.findOne({ where: { userId: id } });
@@ -22,16 +27,17 @@ router.post("/login", async (req, res) => {
           userNickname: userData.userNickname,
         };
         req.session.save();
+        console.log(req.session.loginData);
         res.json({ message: "success" });
       } else {
-        res.status(401).json({ message: "올바르지 않은 비밀번호" });
+        return next(new UnAuthorizedException());
       }
     } else {
-      res.status(404).json({ message: "사용자를 찾을 수 없습니다" });
+      return next(new NotFoundException());
     }
   } catch (e) {
     console.error(e);
-    res.status(500).send();
+    return next(new InternalServerException());
   }
 });
 
@@ -40,7 +46,7 @@ router.get("/logout", (req, res) => {
     req.session.destroy((err) => {
       if (err) {
         console.error(err);
-        res.status(500).send();
+        return next(new NotFoundException());
       } else {
         res.json({ message: "success" });
       }

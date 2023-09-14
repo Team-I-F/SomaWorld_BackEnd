@@ -7,30 +7,12 @@ const {
   BadRequestException,
 } = require("../global/exception/Exceptions");
 
-// 댓글ID + 1해서 가져오는거. O
-const getCommentId = async (req, res, next) => {
-  try {
-    const con = await Comment.findOne({
-      attributes: [[sequelize.fn("MAX", sequelize.col("commentId")), "m"]],
-    });
-
-    if (con && con.m !== null) {
-      return con.m + 1;
-    }
-
-    return 1;
-  } catch (e) {
-    console.log(e);
-    return next(new NotFoundException());
-  }
-};
-
 // 댓글 O
 router.get("/:tableId", async (req, res, next) => {
   try {
     const { tableId } = req.params;
     const comments = await Comment.findAll({
-      attributes: ["userNickname", "comment", "created"],
+      attributes: ["commentId", "userNickname", "comment", "created"],
       where: { tableId },
     });
     res.json(comments);
@@ -41,105 +23,103 @@ router.get("/:tableId", async (req, res, next) => {
 });
 
 // 대댓글 O
-router.get("/cinc/:id", async (req, res, next) => {
+router.get("/cinc/:commentId", async (req, res, next) => {
   try {
-    const { id } = req.params;
+    const { commentId } = req.params;
     const replies = await CinC.findAll({
-      attributes: ["userNickname", "comment", "created"],
-      where: { commentId: id },
+      attributes: ["cincId", "userNickname", "comment", "created"],
+      where: { commentId },
     });
     res.json(replies);
   } catch (e) {
     console.log(e);
-    return next(NotFoundException());
+    return next(new NotFoundException());
   }
 });
 
 // 댓글 insert O
 router.post("/", async (req, res, next) => {
   try {
-    const commentId = await getCommentId();
-    const { tableId, userNickname, comment } = req.body;
+    if (!req.session.loginData) return next(new BadRequestException());
+    const { tableId, comment } = req.body;
     await Comment.create({
-      commentId: commentId,
       tableId: tableId,
-      userNickname: userNickname,
+      userNickname: req.session.loginData.userNickname,
       comment: comment,
       created: sequelize.literal("NOW()"),
     });
     res.status(200).send();
   } catch (e) {
     console.log(e);
-    return next(InternalServerException());
+    return next(new InternalServerException());
   }
 });
 
 // 대댓글 insert O
 router.post("/cinc", async (req, res, next) => {
   try {
+    if (!req.session.loginData) return next(new BadRequestException());
     const { commentId, userNickname, comment } = req.body;
     await CinC.create({
       commentId: commentId,
-      userNickname: userNickname,
+      userNickname: req.session.loginData.userNickname,
       comment: comment,
       created: sequelize.literal("NOW()"),
     });
     res.send(200).send();
   } catch (e) {
     console.log(e);
-    return next(InternalServerException());
+    return next(new InternalServerException());
   }
 });
 
-router.put("/:tableId", async (req, res, next) => {
+router.put("/:commentId", async (req, res, next) => {
   try {
     const { tableId } = req.params;
-    const { userNickname, comment } = req.body;
+    const { comment } = req.body;
     const info = await Comment.findOne({
       where: {
         tableId,
       },
     });
     if (!info) {
-      return res.status(404).send("Not Found");
+      return next(new NotFoundException());
     }
-    info.userNickname = userNickname;
     info.comment = comment;
 
     await info.save();
     res.status(200).json({ success: true });
   } catch (err) {
     console.log(err);
-    return next(InternalServerException());
+    return next(new InternalServerException());
   }
 });
 
-router.put("/cinc/:commentId", async (req, res) => {
-  const { commentId } = req.params;
+router.put("/:cincId", async (req, res) => {
+  const { cincId } = req.params;
   const { userNickname, comment } = req.body;
   try {
     const info = await CinC.findOne({
       where: {
-        commentId,
+        cincId,
       },
     });
     if (!info) {
-      return next(NotFoundException());
+      return next(new NotFoundException());
     }
-    info.userNickname = userNickname;
-    info.comment = comment;
+    info.cincId = cincId;
 
     await info.save();
     res.status(200).json({ success: true });
   } catch (err) {
     console.log(err);
-    return next(InternalServerException());
+    return next(new InternalServerException());
   }
 });
 
 router.delete("/:tableId", async (req, res) => {
   const { tableId } = req.params;
-  if (!tableId) return next(NotFoundException());
+  if (!tableId) return next(new NotFoundException());
 
   try {
     await Comment.delete({
@@ -153,13 +133,13 @@ router.delete("/:tableId", async (req, res) => {
   }
 });
 
-router.delete("/cinc/:commentId", async (req, res) => {
-  const { commentId } = req.params;
-  if (!commentId) return next(NotFoundException());
+router.delete("/cinc/:cincId", async (req, res) => {
+  const { cincId } = req.params;
+  if (!cincId) return next(new NotFoundException());
   try {
     await CinC.delete({
       where: {
-        commentId,
+        cincId,
       },
     });
   } catch (err) {

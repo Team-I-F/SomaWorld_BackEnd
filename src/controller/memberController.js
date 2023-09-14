@@ -22,7 +22,7 @@ router.post("/", async (req, res) => {
       userName: name,
       userNickname: nickname,
     });
-    res.status(200).send({ message: "회원 가입이 완료되었습니다." });
+    res.status(200).send({ success: true });
   } catch (e) {
     console.error(e);
     res.status(500).json({ error: "회원 가입에 실패하였습니다." });

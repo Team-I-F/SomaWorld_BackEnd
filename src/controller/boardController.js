@@ -67,7 +67,7 @@ router.get("/:galleryId/:tableId", async (req, res, next) => {
         galleryId,
       },
     });
-    if (!results) res.json("값이 없습니다.");
+    if (!results) return next(new NotFoundException());
     else res.json(results);
   } catch (e) {
     console.log(e);

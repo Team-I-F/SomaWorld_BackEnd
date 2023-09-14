@@ -20,7 +20,13 @@ class InternalServerException extends Error {
   }
 }
 
+class UnAuthorizedException extends Error {
+  constructor() {
+    super(401, "UnAuthorized");
+  }
+}
 module.exports = {
+  UnAuthorizedException,
   HttpError,
   BadRequestException,
   NotFoundException,

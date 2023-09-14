@@ -4,8 +4,8 @@ module.exports = (sequelize, DataTypes) => {
     {
       commentId: {
         type: DataTypes.INTEGER,
-        allowNull: false,
         primaryKey: true,
+        autoIncrement: true,
       },
       tableId: {
         type: DataTypes.INTEGER,
