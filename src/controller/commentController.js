@@ -17,7 +17,6 @@ router.get("/:tableId", async (req, res, next) => {
     });
     res.json(comments);
   } catch (e) {
-    console.log(e);
     return next(new NotFoundException());
   }
 });
