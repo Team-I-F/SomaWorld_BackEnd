@@ -19,12 +19,13 @@ router.post("/login", async (req, res, next) => {
 
       if (result) {
         req.session.loginData = {
+          userId: id,
           userName: userData.userName,
           userNickname: userData.userNickname,
         };
         req.session.save();
         console.log(req.session.loginData);
-        res.json({ message: "success" });
+        res.status(200).send();
       } else {
         return next(new UnAuthorizedException());
       }
@@ -44,7 +45,7 @@ router.get("/logout", (req, res, next) => {
         console.error(err);
         return next(new NotFoundException());
       } else {
-        res.json({ message: "success" });
+        res.status(200).send();
       }
     });
   } catch (e) {

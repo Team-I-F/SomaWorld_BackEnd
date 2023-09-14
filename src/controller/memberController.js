@@ -3,15 +3,23 @@ const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcrypt");
 const { User } = require("../models");
-
+const {
+  NotFoundException,
+  UnAuthorizedException,
+  InternalServerException,
+  BadRequestException,
+} = require("../global/exception/Exceptions");
 const env = process.env;
 const saltRounds = 10;
 
-router.post("/", async (req, res) => {
+router.post("/", async (req, res, next) => {
   const { id, pw, name, nickname } = req.body;
-
+  const { result } = await User.findAll({
+    attributes: ["userId"],
+  });
+  console.log(result);
   if (!id || !pw || !name || !nickname) {
-    return res.status(400).json({ error: "모든 필드를 입력해주세요." });
+    return next(new BadRequestException());
   }
 
   try {
@@ -25,7 +33,7 @@ router.post("/", async (req, res) => {
     res.status(200).send({ success: true });
   } catch (e) {
     console.error(e);
-    res.status(500).json({ error: "회원 가입에 실패하였습니다." });
+    return next(new InternalServerException());
   }
 });
 
