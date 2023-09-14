@@ -25,7 +25,14 @@ class UnAuthorizedException extends Error {
     super(401, "UnAuthorized");
   }
 }
+
+class ForbiddenException extends Error {
+  constructor() {
+    super(403, "Forbidden");
+  }
+}
 module.exports = {
+  ForbiddenException,
   UnAuthorizedException,
   HttpError,
   BadRequestException,

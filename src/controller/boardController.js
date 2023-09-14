@@ -4,18 +4,20 @@ const { Op } = require("sequelize");
 const { Board, Gallery, sequelize, Sequelize } = require("../models");
 const { getViews } = require("../function/boardFunction.js");
 const upload = require("../middleware/multers");
-
 const fs = require("fs");
 const {
   InternalServerException,
   NotFoundException,
   BadRequestException,
+  ForbiddenException,
 } = require("../global/exception/Exceptions");
 
 // 전체 메인 게시판 페이지(큰 게시판 이름(갤러리) 넘어감) O
 router.get("/", async (req, res, next) => {
   try {
-    const results = await Gallery.findAll();
+    const results = await Gallery.findAll({
+      attributes: ["galleryId", "galleryName"],
+    });
     res.json(results);
   } catch (e) {
     console.log(e);
@@ -23,7 +25,7 @@ router.get("/", async (req, res, next) => {
   }
 });
 
-// 게시판 메인(게시물 이름, 글쓴이, 쓴 날짜, 조회수), (큰 게시판 누르면 넘어가는 곳. 즉, 갤러리 안쪽.) O
+// 게시판 메인
 router.get("/:galleryId", async (req, res, next) => {
   try {
     const { galleryId } = req.params;
@@ -97,11 +99,12 @@ router.get(`/search/:galleryId/:titles`, async (req, res, next) => {
 
 router.post(`/gallery`, async (req, res, next) => {
   try {
+    if (!req.session.loginData) return next(new BadRequestException());
     const { galleryName } = req.body;
     await Gallery.create({
       galleryName: galleryName,
     });
-    res.status(200).send("OK");
+    res.status(200).send();
   } catch (e) {
     console.log(e);
     return next(new InternalServerException());
@@ -111,7 +114,8 @@ router.post(`/gallery`, async (req, res, next) => {
 // 게시물 작성 O
 router.post(`/`, async (req, res, next) => {
   try {
-    const { galleryId, title, userNickname, description } = req.body;
+    if (!req.session.loginData) return next(new BadRequestException());
+    const { galleryId, title, description } = req.body;
     const result = await Board.findOne({
       attributes: [[Sequelize.literal("max(tableId)"), "tableId"]],
     });
@@ -120,7 +124,7 @@ router.post(`/`, async (req, res, next) => {
     await Board.create({
       galleryId,
       title,
-      userNickname,
+      userNickname: req.session.loginData.userNickname,
       description,
       created: sequelize.literal("NOW()"),
       views: 0,
@@ -155,6 +159,7 @@ router.put(
 );
 
 router.put("/gallery/:galleryId", async (req, res, next) => {
+  if (!req.session.loginData) return next(new BadRequestException());
   const { galleryId } = req.params;
   const { galleryName } = req.body;
   try {
@@ -169,11 +174,18 @@ router.put("/gallery/:galleryId", async (req, res, next) => {
     return next(new InternalServerException());
   }
 });
+
 // 게시물 삭제 O
 router.delete(`/:tableId`, async (req, res, next) => {
   try {
-    console.log("asdasd");
     const { tableId } = req.params;
+    const { userNickname } = await Board.findOne({
+      attributes: ["userNickname"],
+      where: { tableId },
+    });
+    console.log(userNickname);
+    if (req.session.loginData.userNickname !== userNickname)
+      return next(new ForbiddenException());
     await Board.destroy({
       where: {
         tableId,

@@ -59,7 +59,7 @@ router.post("/", async (req, res, next) => {
 router.post("/cinc", async (req, res, next) => {
   try {
     if (!req.session.loginData) return next(new BadRequestException());
-    const { commentId, userNickname, comment } = req.body;
+    const { commentId, comment } = req.body;
     await CinC.create({
       commentId: commentId,
       userNickname: req.session.loginData.userNickname,
@@ -95,9 +95,9 @@ router.put("/:commentId", async (req, res, next) => {
   }
 });
 
-router.put("/:cincId", async (req, res) => {
+router.put("/cinc/:cincId", async (req, res) => {
   const { cincId } = req.params;
-  const { userNickname, comment } = req.body;
+  const { comment } = req.body;
   try {
     const info = await CinC.findOne({
       where: {
@@ -107,7 +107,7 @@ router.put("/:cincId", async (req, res) => {
     if (!info) {
       return next(new NotFoundException());
     }
-    info.cincId = cincId;
+    info.comment = comment;
 
     await info.save();
     res.status(200).json({ success: true });

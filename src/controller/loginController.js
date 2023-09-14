@@ -1,4 +1,3 @@
-require("dotenv").config();
 const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcrypt");
@@ -7,11 +6,8 @@ const {
   NotFoundException,
   UnAuthorizedException,
   InternalServerException,
+  BadRequestException,
 } = require("../global/exception/Exceptions");
-
-const env = process.env;
-
-const saltRounds = 10;
 
 router.post("/login", async (req, res, next) => {
   try {
@@ -41,7 +37,7 @@ router.post("/login", async (req, res, next) => {
   }
 });
 
-router.get("/logout", (req, res) => {
+router.get("/logout", (req, res, next) => {
   try {
     req.session.destroy((err) => {
       if (err) {
@@ -53,11 +49,11 @@ router.get("/logout", (req, res) => {
     });
   } catch (e) {
     console.error(e);
-    res.status(500).send();
+    return next(new InternalServerException());
   }
 });
 
-router.get("/loginCheck", (req, res) => {
+router.get("/loginCheck", (req, res, next) => {
   try {
     if (req.session.loginData) {
       res.send({ loggedIn: true, loginData: req.session.loginData });
@@ -66,7 +62,7 @@ router.get("/loginCheck", (req, res) => {
     }
   } catch (e) {
     console.error(e);
-    res.status(500).send();
+    return next(new InternalServerException());
   }
 });
 
