@@ -30,7 +30,14 @@ router.get("/:galleryId", async (req, res, next) => {
   try {
     const { galleryId } = req.params;
     const results = await Board.findAll({
-      attributes: ["tableId", "title", "userNickname", "created", "views"],
+      attributes: [
+        "tableId",
+        "title",
+        "userNickname",
+        "description",
+        "created",
+        "views",
+      ],
       where: { galleryId },
     });
     res.json(results);
