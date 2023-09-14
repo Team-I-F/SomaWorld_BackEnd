@@ -21,6 +21,10 @@ try {
   fs.mkdirSync(process.env.FILELINK);
 }
 
+app.use(
+  "/images",
+  express.static("/Users/mac/Documents/sideProject/SomaWorld_BackEnd/uploads")
+);
 app.use("/board", br); // 게시판
 app.use("/register", mr); // 회원가입
 app.use("/user", lr); // 로그인
