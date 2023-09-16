@@ -22,6 +22,7 @@ router.post("/login", async (req, res, next) => {
           userId: id,
           userName: userData.userName,
           userNickname: userData.userNickname,
+          admin: userData.admin,
         };
         req.session.save();
         console.log(req.session.loginData);

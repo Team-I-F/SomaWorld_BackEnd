@@ -191,7 +191,10 @@ router.delete(`/:tableId`, async (req, res, next) => {
       where: { tableId },
     });
     console.log(userNickname);
-    if (req.session.loginData.userNickname !== userNickname)
+    if (
+      req.session.loginData.userNickname !== userNickname ||
+      req.session.loginData.admin === false
+    )
       return next(new ForbiddenException());
     await Board.destroy({
       where: {
@@ -207,6 +210,8 @@ router.delete(`/:tableId`, async (req, res, next) => {
 
 // 갤러리 삭제
 router.delete("/gallery/:galleryId", async (req, res, next) => {
+  if (req.session.loginData.admin === false)
+    return next(new ForbiddenException());
   try {
     const { galleryId } = req.params;
     await Gallery.destroy({
