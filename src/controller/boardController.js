@@ -166,7 +166,11 @@ router.put(
 );
 
 router.put("/gallery/:galleryId", async (req, res, next) => {
-  if (!req.session.loginData) return next(new BadRequestException());
+  if (
+    req.session.loginData.userNickname !== userNickname ||
+    req.session.loginData.admin === false
+  )
+    return next(new ForbiddenException());
   const { galleryId } = req.params;
   const { galleryName } = req.body;
   try {
