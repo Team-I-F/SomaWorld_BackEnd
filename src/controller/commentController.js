@@ -5,6 +5,7 @@ const {
   InternalServerException,
   NotFoundException,
   BadRequestException,
+  ForbiddenException,
 } = require("../global/exception/Exceptions");
 
 // 댓글 O
@@ -74,11 +75,17 @@ router.post("/cinc", async (req, res, next) => {
 
 router.put("/:commentId", async (req, res, next) => {
   try {
-    const { tableId } = req.params;
-    const { comment } = req.body;
+    const { commentId } = req.params;
+    const { comment, userId } = req.body;
+
+    if (req.session.loginData.userId !== userId) {
+      if (req.session.loginData.admin !== true)
+        return next(new ForbiddenException());
+    }
+
     const info = await Comment.findOne({
       where: {
-        tableId,
+        commentId,
       },
     });
     if (!info) {

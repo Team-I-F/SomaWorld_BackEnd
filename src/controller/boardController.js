@@ -131,6 +131,7 @@ router.post(`/`, async (req, res, next) => {
     await Board.create({
       galleryId,
       title,
+      userId: req.session.loginData.userId,
       userNickname: req.session.loginData.userNickname,
       description,
       created: sequelize.literal("NOW()"),
