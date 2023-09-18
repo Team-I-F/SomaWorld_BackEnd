@@ -167,14 +167,13 @@ router.put(
 );
 
 router.put("/gallery/:galleryId", async (req, res, next) => {
-  if (
-    req.session.loginData.userNickname !== userNickname ||
-    req.session.loginData.admin === false
-  )
-    return next(new ForbiddenException());
   const { galleryId } = req.params;
-  const { galleryName } = req.body;
+  const { galleryName, userId } = req.body;
   try {
+    if (req.session.loginData.userId !== userId) {
+      if (req.session.loginData.admin !== true)
+        return next(new ForbiddenException());
+    }
     const results = await Gallery.findOne({
       where: { galleryId },
     });
@@ -191,16 +190,15 @@ router.put("/gallery/:galleryId", async (req, res, next) => {
 router.delete(`/:tableId`, async (req, res, next) => {
   try {
     const { tableId } = req.params;
-    const { userNickname } = await Board.findOne({
-      attributes: ["userNickname"],
+    const { userId } = await Board.findOne({
+      attributes: ["userId"],
       where: { tableId },
     });
     console.log(userNickname);
-    if (
-      req.session.loginData.userNickname !== userNickname ||
-      req.session.loginData.admin === false
-    )
-      return next(new ForbiddenException());
+    if (req.session.loginData.userId !== userId) {
+      if (req.session.loginData.admin !== true)
+        return next(new ForbiddenException());
+    }
     await Board.destroy({
       where: {
         tableId,

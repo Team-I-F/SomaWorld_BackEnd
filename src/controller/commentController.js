@@ -62,6 +62,7 @@ router.post("/cinc", async (req, res, next) => {
     const { commentId, comment } = req.body;
     await CinC.create({
       commentId: commentId,
+      userId: req.session.loginData.userId,
       userNickname: req.session.loginData.userNickname,
       comment: comment,
       created: sequelize.literal("NOW()"),
@@ -103,8 +104,12 @@ router.put("/:commentId", async (req, res, next) => {
 
 router.put("/cinc/:cincId", async (req, res) => {
   const { cincId } = req.params;
-  const { comment } = req.body;
+  const { comment, userId } = req.body;
   try {
+    if (req.session.loginData.userId !== userId) {
+      if (req.session.loginData.admin !== true)
+        return next(new ForbiddenException());
+    }
     const info = await CinC.findOne({
       where: {
         cincId,
@@ -142,6 +147,10 @@ router.delete("/:tableId", async (req, res) => {
 router.delete("/cinc/:cincId", async (req, res) => {
   const { cincId } = req.params;
   if (!cincId) return next(new NotFoundException());
+  if (req.session.loginData.userId !== userId) {
+    if (req.session.loginData.admin !== true)
+      return next(new ForbiddenException());
+  }
   try {
     await CinC.delete({
       where: {
