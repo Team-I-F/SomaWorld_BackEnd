@@ -130,6 +130,15 @@ router.put("/cinc/:cincId", async (req, res) => {
 
 router.delete("/:tableId", async (req, res) => {
   const { tableId } = req.params;
+  const { userId } = await Board.findOne({
+    attributes: ["userId"],
+    where: { tableId },
+  });
+  if (req.session.loginData.userId !== userId) {
+    if (req.session.loginData.admin !== true)
+      return next(new ForbiddenException());
+  }
+
   if (!tableId) return next(new NotFoundException());
 
   try {
@@ -146,7 +155,6 @@ router.delete("/:tableId", async (req, res) => {
 
 router.delete("/cinc/:cincId", async (req, res) => {
   const { cincId } = req.params;
-  if (!cincId) return next(new NotFoundException());
   if (req.session.loginData.userId !== userId) {
     if (req.session.loginData.admin !== true)
       return next(new ForbiddenException());
