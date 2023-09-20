@@ -18,7 +18,7 @@ router.get("/", async (req, res, next) => {
     const results = await Gallery.findAll({
       attributes: ["galleryId", "galleryName"],
     });
-    res.json(results);
+    res.status(200).json(results);
   } catch (e) {
     console.log(e);
     return next(new NotFoundException());
@@ -40,7 +40,7 @@ router.get("/:galleryId", async (req, res, next) => {
       ],
       where: { galleryId },
     });
-    res.json(results);
+    res.status(200).json(results);
   } catch (e) {
     console.log(e);
     return next(new NotFoundException());
@@ -77,7 +77,7 @@ router.get("/:galleryId/:tableId", async (req, res, next) => {
       },
     });
     if (!results) return next(new NotFoundException());
-    else res.json(results);
+    else res.status(200).json(results);
   } catch (e) {
     console.log(e);
     return next(new NotFoundException());
@@ -97,7 +97,7 @@ router.get(`/search/:galleryId/:titles`, async (req, res, next) => {
         galleryId,
       },
     });
-    res.json(results);
+    res.status(200).json(results);
   } catch (e) {
     console.log(e);
     return next(new NotFoundException());
@@ -111,7 +111,7 @@ router.post(`/gallery`, async (req, res, next) => {
     await Gallery.create({
       galleryName: galleryName,
     });
-    res.status(200).send();
+    res.sendStatus(200);
   } catch (e) {
     console.log(e);
     return next(new InternalServerException());
@@ -137,7 +137,7 @@ router.post(`/`, async (req, res, next) => {
       created: sequelize.literal("NOW()"),
       views: 0,
     });
-    res.status(200).json({ success: true, tableId: nextId });
+    res.status(200).json({ tableId: nextId });
   } catch (e) {
     console.log(e);
     return next(new InternalServerException());
@@ -158,7 +158,7 @@ router.put(
       });
       results.image = image;
       await results.save();
-      res.status(200).json({ success: true });
+      res.sendStatus(200);
     } catch (err) {
       console.log(err);
       return next(new InternalServerException());
@@ -179,7 +179,7 @@ router.put("/gallery/:galleryId", async (req, res, next) => {
     });
     results.galleryName = galleryName;
     await results.save();
-    res.status(200).json({ success: true });
+    res.sendStatus(200);
   } catch (err) {
     console.log(err);
     return next(new InternalServerException());
@@ -222,7 +222,7 @@ router.delete("/gallery/:galleryId", async (req, res, next) => {
         galleryId,
       },
     });
-    res.status(200).json({ success: true });
+    res.sendStatus(200);
   } catch (err) {
     console.log(err);
     return next(new NotFoundException());

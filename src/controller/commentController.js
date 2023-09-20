@@ -61,13 +61,13 @@ router.post("/cinc", async (req, res, next) => {
     if (!req.session.loginData) return next(new BadRequestException());
     const { commentId, comment } = req.body;
     await CinC.create({
-      commentId: commentId,
+      commentId,
       userId: req.session.loginData.userId,
       userNickname: req.session.loginData.userNickname,
-      comment: comment,
+      comment,
       created: sequelize.literal("NOW()"),
     });
-    res.send(200).send();
+    res.sendStatus(200);
   } catch (e) {
     console.log(e);
     return next(new InternalServerException());
@@ -95,7 +95,7 @@ router.put("/:commentId", async (req, res, next) => {
     info.comment = comment;
 
     await info.save();
-    res.status(200).json({ success: true });
+    res.sendStatus(200);
   } catch (err) {
     console.log(err);
     return next(new InternalServerException());
@@ -121,7 +121,7 @@ router.put("/cinc/:cincId", async (req, res) => {
     info.comment = comment;
 
     await info.save();
-    res.status(200).json({ success: true });
+    res.sendStatus(200);
   } catch (err) {
     console.log(err);
     return next(new InternalServerException());
@@ -147,9 +147,10 @@ router.delete("/:tableId", async (req, res) => {
         tableId,
       },
     });
+    res.sendStatus(200);
   } catch (err) {
     console.log(err);
-    return next();
+    return next(new NotFoundException());
   }
 });
 
@@ -165,9 +166,10 @@ router.delete("/cinc/:cincId", async (req, res) => {
         cincId,
       },
     });
+    res.sendStatus(200);
   } catch (err) {
     console.log(err);
-    return next(InternalServerException());
+    return next(new NotFoundException());
   }
 });
 module.exports = router;

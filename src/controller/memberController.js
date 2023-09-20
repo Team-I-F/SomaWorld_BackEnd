@@ -4,8 +4,6 @@ const router = express.Router();
 const bcrypt = require("bcrypt");
 const { User } = require("../models");
 const {
-  NotFoundException,
-  UnAuthorizedException,
   InternalServerException,
   BadRequestException,
 } = require("../global/exception/Exceptions");
@@ -30,7 +28,7 @@ router.post("/", async (req, res, next) => {
       userName: name,
       userNickname: nickname,
     });
-    res.status(200).send({ success: true });
+    res.sendStatus(200);
   } catch (e) {
     console.error(e);
     return next(new InternalServerException());

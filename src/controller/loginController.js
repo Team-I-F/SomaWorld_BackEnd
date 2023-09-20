@@ -6,7 +6,6 @@ const {
   NotFoundException,
   UnAuthorizedException,
   InternalServerException,
-  BadRequestException,
 } = require("../global/exception/Exceptions");
 
 router.post("/login", async (req, res, next) => {
@@ -26,7 +25,7 @@ router.post("/login", async (req, res, next) => {
         };
         req.session.save();
         console.log(req.session.loginData);
-        res.status(200).send();
+        res.sendStatus(200);
       } else {
         return next(new UnAuthorizedException());
       }
@@ -45,9 +44,8 @@ router.get("/logout", (req, res, next) => {
       if (err) {
         console.error(err);
         return next(new NotFoundException());
-      } else {
-        res.status(200).send();
       }
+      res.sendStatus(200);
     });
   } catch (e) {
     console.error(e);
