@@ -16,6 +16,7 @@ db.Gallery = require("./Gallery")(sequelize, Sequelize);
 db.User = require("./User")(sequelize, Sequelize);
 db.Comment = require("./Comment")(sequelize, Sequelize);
 db.CinC = require("./CinC")(sequelize, Sequelize);
+db.Search = require("./search")(sequelize, Sequelize);
 
 // 각 모델들의 associate 함수를 호출하여 관계를 설정합니다.
 Object.values(db).forEach((model) => {

@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const { Op } = require("sequelize");
-const { Board, Gallery, sequelize, Sequelize } = require("../models");
+const { Board, Gallery, sequelize, Sequelize, Search } = require("../models");
 const { getViews } = require("../function/boardFunction.js");
 const upload = require("../middleware/multers");
 const fs = require("fs");
@@ -11,6 +11,7 @@ const {
   BadRequestException,
   ForbiddenException,
 } = require("../global/exception/Exceptions");
+const search = require("../models/search");
 
 // 전체 메인 게시판 페이지(큰 게시판 이름(갤러리) 넘어감) O
 router.get("/", async (req, res, next) => {
@@ -85,18 +86,36 @@ router.get("/:galleryId/:tableId", async (req, res, next) => {
 });
 
 // 검색 O
-router.get(`/search/:galleryId/:titles`, async (req, res, next) => {
+router.get(`/search/:galleryId/:word`, async (req, res, next) => {
   try {
-    const { galleryId, titles } = req.params;
+    const { galleryId, word } = req.params;
     const results = await Board.findAll({
       attributes: ["tableId", "title", "userNickname", "created", "views"],
       where: {
         title: {
-          [Op.like]: `%${titles}%`,
+          [Op.like]: `%${word}%`,
         },
         galleryId,
       },
     });
+    const find = await Search.findAll({
+      where: {
+        word,
+      },
+    });
+    if (find.length === 0) {
+      console.log(1);
+      await Search.create({
+        word,
+        count: 0,
+      });
+      return res.status(200).json(results);
+    }
+    await Search.increment("count", {
+      by: 1,
+      where: { word },
+    });
+
     res.status(200).json(results);
   } catch (e) {
     console.log(e);

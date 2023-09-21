@@ -15,11 +15,9 @@ router.post("/login", async (req, res, next) => {
     if (userData) {
       const result = await bcrypt.compare(pw, userData.userPassword);
       delete userData.dataValues.userPassword;
-
       if (result) {
         req.session.loginData = userData;
         req.session.save();
-        console.log(req.session.loginData);
         res.sendStatus(200);
       } else {
         return next(new UnAuthorizedException());
@@ -76,12 +74,13 @@ router.get("/:userUniqueId", async (req, res, next) => {
 });
 
 router.put("/", async (req, res, next) => {
-  const userDTO = req.params;
+  const userDTO = req.body;
   try {
-    await User.update({
-      userDTO,
-      where: {},
+    const userUniqueId = req.session.loginData.userUniqueId;
+    await User.update(userDTO, {
+      where: { userUniqueId },
     });
+    res.sendStatus(200);
   } catch (err) {
     console.log(err);
     return next(new InternalServerException());
