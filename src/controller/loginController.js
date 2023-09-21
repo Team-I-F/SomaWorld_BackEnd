@@ -12,17 +12,12 @@ router.post("/login", async (req, res, next) => {
   try {
     const { id, pw } = req.body;
     const userData = await User.findOne({ where: { userId: id } });
-
     if (userData) {
       const result = await bcrypt.compare(pw, userData.userPassword);
+      delete userData.dataValues.userPassword;
 
       if (result) {
-        req.session.loginData = {
-          userId: id,
-          userName: userData.userName,
-          userNickname: userData.userNickname,
-          admin: userData.admin,
-        };
+        req.session.loginData = userData;
         req.session.save();
         console.log(req.session.loginData);
         res.sendStatus(200);
@@ -66,4 +61,30 @@ router.get("/loginCheck", (req, res, next) => {
   }
 });
 
+router.get("/:userUniqueId", async (req, res, next) => {
+  const { userUniqueId } = req.params;
+  try {
+    const result = await User.findAll({
+      attributes: ["userUniqueId", "userId", "UserName", "UserNickname"],
+      where: { userUniqueId },
+    });
+    res.status(200).send(result);
+  } catch (err) {
+    console.log(err);
+    return next(new InternalServerException());
+  }
+});
+
+router.put("/", async (req, res, next) => {
+  const userDTO = req.params;
+  try {
+    await User.update({
+      userDTO,
+      where: {},
+    });
+  } catch (err) {
+    console.log(err);
+    return next(new InternalServerException());
+  }
+});
 module.exports = router;
