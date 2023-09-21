@@ -2,28 +2,18 @@ const express = require("express");
 const search = require("../models/search");
 const router = express.Router();
 const { Op } = require("sequelize");
+const { Search } = require("../models");
 
-router.post("/", async (req, res) => {
-  const word = req.body;
+router.get("/", async (req, res) => {
   try {
-    const result = await search.findAll({
-      where: {
-        word,
-      },
+    const result = await Search.findAll({
+      order: [["count", "DESC"]],
+      limit: 10,
     });
-    if (result) {
-      result.count + 1;
-      result.save();
-      return res.sendStatus(200);
-    }
-    await search.create({
-      word,
-      count: 0,
-    });
+    res.status(200).send(result);
   } catch (err) {
     console.log(err);
-    return res.sendStatus(500);
+    return res.sendStatus(404);
   }
 });
-
 module.exports = router;
